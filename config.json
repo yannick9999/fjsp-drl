@@ -31,10 +31,10 @@
     "A_coeff": 1.0,
     "vf_coeff": 0.5,
     "entropy_coeff": 0.01,
-    "max_iterations": 1000,
+    "max_iterations": 20,
     "save_timestep": 10,
     "update_timestep": 1,
-    "viz": true,
+    "viz": false,
     "viz_name": "Paper_1005",
     "minibatch_size": 512,
     "parallel_iter": 20

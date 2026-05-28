@@ -1,4 +1,4 @@
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 # Registrar for the gym environment
 # https://www.gymlibrary.ml/content/environment_creation/ for reference
