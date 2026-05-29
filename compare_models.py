@@ -16,7 +16,7 @@ from env.fjsp_env import FJSPEnv
 # ── Config ────────────────────────────────────────────────────────────────────
 MY_MODEL_PATH   = "./save/train_20260529_103832/save_best_10_5_810.pt"
 SONG_MODEL_PATH = "./results/save_10_5.pt"
-DATA_DIR        = "./data_dev/1005/"
+DATA_DIR        = "./data_test/1005/"
 MY_TRAINING_AVE = "./save/train_20260529_103832/training_ave_20260529_103832.xlsx"
 MY_TRAINING_100 = "./save/train_20260529_103832/training_100_20260529_103832.xlsx"
 # ─────────────────────────────────────────────────────────────────────────────
