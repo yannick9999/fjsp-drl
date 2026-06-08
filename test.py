@@ -13,6 +13,12 @@ import PPO_model
 from env.fjsp_env import FJSPEnv
 from env.load_data import nums_detec
 
+def format_time(seconds):
+    seconds = int(seconds)
+    h, rem = divmod(seconds, 3600)
+    m, s = divmod(rem, 60)
+    return "{0:02d}:{1:02d}:{2:02d}".format(h, m, s)
+
 def setup_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -85,9 +91,7 @@ def main():
     file_name = [test_files[i] for i in range(num_ins)]
     data_file = pd.DataFrame(file_name, columns=["file_name"])
     data_file.to_excel(writer, sheet_name='Sheet1', index=False)
-    writer.close()
     data_file.to_excel(writer_time, sheet_name='Sheet1', index=False)
-    writer_time.close()
 
     # Rule-by-rule (model-by-model) testing
     start = time.time()
@@ -153,21 +157,27 @@ def main():
                     env.reset()
                 makespans.append(torch.mean(torch.tensor(makespan_s)))
                 times.append(torch.mean(torch.tensor(time_s)))
-            print("finish env {0}".format(i_ins))
+            elapsed = time.time() - start
+            completed = i_rules * num_ins + i_ins + 1
+            total_to_do = len(rules) * num_ins
+            avg_per_instance = elapsed / completed
+            estimated_total = avg_per_instance * total_to_do
+            remaining = estimated_total - elapsed
+            print("finish env {0} | elapsed: {1} | estimated total: {2} | remaining: ~{3}".format(
+                i_ins, format_time(elapsed), format_time(estimated_total), format_time(remaining)))
         print("rule_spend_time: ", time.time() - step_time_last)
 
         # Save makespan and time data to files
         data = pd.DataFrame(torch.tensor(makespans).t().tolist(), columns=[rule])
         data.to_excel(writer, sheet_name='Sheet1', index=False, startcol=i_rules + 1)
-        writer.save()
-        writer.close()
         data = pd.DataFrame(torch.tensor(times).t().tolist(), columns=[rule])
         data.to_excel(writer_time, sheet_name='Sheet1', index=False, startcol=i_rules + 1)
-        writer_time.save()
-        writer_time.close()
 
         for env in envs:
             env.reset()
+
+    writer.close()
+    writer_time.close()
 
     print("total_spend_time: ", time.time() - start)
 

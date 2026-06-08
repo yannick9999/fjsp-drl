@@ -3,8 +3,8 @@
     "num_jobs": 20,
     "num_mas": 10,
     "batch_size": 20,
-    "ope_feat_dim" : 6,
-    "ma_feat_dim" : 3,
+    "ope_feat_dim": 6,
+    "ma_feat_dim": 3,
     "show_mode": "print",
     "valid_batch_size": 100
   },
