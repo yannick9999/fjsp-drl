@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=fjsp_baseline
+#SBATCH --job-name=fjsp_test_10010_20010
 #SBATCH --account=rrg-cglee
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=24
 #SBATCH --gpus-per-node=1
-#SBATCH --time=6:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=logs/slurm-%j.out
 #SBATCH --error=logs/slurm-%j.err
 
