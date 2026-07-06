@@ -14,10 +14,10 @@ import sys
 
 CONFIG_PATH = "./config.json"
 SAVE_DIR = "./save"
-DATA_PATHS = ["10010", "20010"]
+DATA_PATHS = ["edata", "rdata", "vdata"]
 # (sample, suffix)
-# MODES = [(False, "G"), (True, "S")]
-MODES = [(False, "G")]
+MODES = [(False, "G"), (True, "S")]
+# MODES = [(False, "G")]
 
 
 def load_config():

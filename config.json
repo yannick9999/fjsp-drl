@@ -14,7 +14,10 @@
     "in_size_ope": 6,
     "out_size_ope": 8,
     "hidden_size_ope": 128,
-    "num_heads": [1, 1],
+    "num_heads": [
+      1,
+      1
+    ],
     "dropout": 0.0,
     "n_latent_actor": 64,
     "n_latent_critic": 64,
@@ -24,7 +27,10 @@
   },
   "train_paras": {
     "lr": 0.0002,
-    "betas": [0.9, 0.999],
+    "betas": [
+      0.9,
+      0.999
+    ],
     "gamma": 1.0,
     "K_epochs": 3,
     "eps_clip": 0.2,
@@ -40,12 +46,14 @@
     "parallel_iter": 20
   },
   "test_paras": {
-    "num_ins": 100,
-    "rules": ["DRL"],
+    "num_ins": 66,
+    "rules": [
+      "DRL"
+    ],
     "sample": false,
     "num_sample": 100,
     "num_average": 10,
     "public_ins": true,
-    "data_path": "10010"
+    "data_path": "edata"
   }
 }
