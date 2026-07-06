@@ -6,7 +6,7 @@ def load_fjs(lines, num_mas, num_opes):
     Load the local FJSP instance.
     '''
     flag = 0
-    matrix_proc_time = torch.zeros(size=(num_opes, num_mas))
+    matrix_proc_time = torch.full(size=(num_opes, num_mas), fill_value=-1.0)
     matrix_pre_proc = torch.full(size=(num_opes, num_opes), dtype=torch.bool, fill_value=False)
     matrix_cal_cumul = torch.zeros(size=(num_opes, num_opes)).int()
     nums_ope = []  # A list of the number of operations for each job
@@ -30,7 +30,8 @@ def load_fjs(lines, num_mas, num_opes):
             # nums_option = np.concatenate((nums_option, num_option))
             opes_appertain = np.concatenate((opes_appertain, np.ones(num_ope)*(flag-1)))
             flag += 1
-    matrix_ope_ma_adj = torch.where(matrix_proc_time > 0, 1, 0)
+    matrix_ope_ma_adj = torch.where(matrix_proc_time >= 0, 1, 0)
+    matrix_proc_time.clamp_(min=0)
     # Fill zero if the operations are insufficient (for parallel computation)
     opes_appertain = np.concatenate((opes_appertain, np.zeros(num_opes-opes_appertain.size)))
     return matrix_proc_time, matrix_ope_ma_adj, matrix_pre_proc, matrix_pre_proc.t(), \
