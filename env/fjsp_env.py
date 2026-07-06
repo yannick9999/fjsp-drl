@@ -308,12 +308,14 @@ class FJSPEnv(gym.Env):
         '''
         ope_step_batch = torch.where(self.ope_step_batch > self.end_ope_biases_batch,
                                      self.end_ope_biases_batch, self.ope_step_batch)
-        op_proc_time = self.proc_times_batch.gather(1, ope_step_batch.unsqueeze(-1).expand(-1, -1,
-                                                                                        self.proc_times_batch.size(2)))
-        ma_eligible = ~self.mask_ma_procing_batch.unsqueeze(1).expand_as(op_proc_time)
+        # Whether each (job, machine) pair is a permitted assignment, independent of its
+        # processing time (a permitted pair with processing time 0 is still eligible)
+        op_adj = self.ope_ma_adj_batch.gather(1, ope_step_batch.unsqueeze(-1).expand(-1, -1,
+                                                                                    self.ope_ma_adj_batch.size(2)))
+        ma_eligible = ~self.mask_ma_procing_batch.unsqueeze(1).expand_as(op_adj)
         job_eligible = ~(self.mask_job_procing_batch + self.mask_job_finish_batch)[:, :, None].expand_as(
-            op_proc_time)
-        flag_trans_2_next_time = torch.sum(torch.where(ma_eligible & job_eligible, op_proc_time.double(), 0.0).transpose(1, 2),
+            op_adj)
+        flag_trans_2_next_time = torch.sum(torch.where(ma_eligible & job_eligible, op_adj, torch.zeros_like(op_adj)).transpose(1, 2),
                                            dim=[1, 2])
         # shape: (batch_size)
         # An element value of 0 means that the corresponding instance has no eligible O-M pairs
@@ -328,6 +330,24 @@ class FJSPEnv(gym.Env):
         flag_need_trans = (flag_trans_2_next_time==0) & (~self.done_batch)
         # available_time of machines
         a = self.machines_batch[:, :, 1]
+
+        # Machines whose available_time has already passed (or equals the current time, e.g. a
+        # zero-duration operation) but are still marked busy: free them immediately without
+        # advancing time, otherwise they would never satisfy "a > self.time" below and would stay
+        # marked busy forever.
+        already_done = (a <= self.time[:, None]) & (self.machines_batch[:, :, 0] == 0) & flag_need_trans[:, None]
+        if already_done.any():
+            jobs_ad = torch.where(already_done, self.machines_batch[:, :, 3].double(), -1.0).float()
+            jobs_ad_index = np.argwhere(jobs_ad.cpu() >= 0).to(self.device)
+            job_ad_idxes = jobs_ad[jobs_ad_index[0], jobs_ad_index[1]].long()
+            batch_ad_idxes = jobs_ad_index[0]
+            self.mask_job_procing_batch[batch_ad_idxes, job_ad_idxes] = False
+            self.mask_ma_procing_batch[already_done] = False
+            self.machines_batch[already_done, 0] = 1
+            self.mask_job_finish_batch = torch.where(self.ope_step_batch == self.end_ope_biases_batch + 1,
+                                                     True, self.mask_job_finish_batch)
+            return
+
         # remain available_time greater than current time
         b = torch.where(a > self.time[:, None], a, torch.max(self.feat_opes_batch[:, 4, :]) + 1.0)
         # Return the minimum value of available_time (the time to transit to)
